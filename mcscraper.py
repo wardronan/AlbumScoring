@@ -12,6 +12,7 @@ import time
 import csv
 import numpy as np
 import datetime
+from tools import timeit
 
 class AlbumReview:
     def __init__(self, artist, album, reviewer, score, review):
@@ -144,27 +145,34 @@ def get_next_page_link(url):
     # remove URL GET parameters, URL fragments, etc.
     print(parsed_href)
     href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path +"?"+ parsed_href.query
+    print(href)
     return href
 
     
-def scrape_many(url, scrape_next=False):
+def scrape_many(url, review_filename, url_filename, scrape_next=False):
     url_list = get_critic_review_links(url)
     missed =[]
-    for i, url in enumerate(url_list):
+    for i, sub_url in enumerate(url_list):
         
         time.sleep(np.random.normal(6,1))
-        print(url)
+        print(sub_url)
         try:
-            scrape_and_write(url, 'reviews_2019.csv', 'scraped_urls_2019.csv')
+            scrape_and_write(sub_url, review_filename, url_filename)
         except Exception:
-            missed.append(url)
+            missed.append(sub_url)
             continue
     if scrape_next == True:
-        try:
-            next_url = get_next_page_link(url)
-            scrape_many(next_url)
-        except Exception:
-            print('no NEXT link')
+        #try:
+        print('step1')
+        time.sleep(20)
+        next_url = get_next_page_link(url)
+        print(f'next_url: {next_url}')
+        time.sleep(20)
+        print('step3')
+        scrape_many(next_url, review_filename, url_filename, scrape_next = True)
+        print('step4')
+        #except Exception:
+            #print('no NEXT link')
     print('DONE\nMISSED:'+str(missed))
 
 def getnexts(url):
